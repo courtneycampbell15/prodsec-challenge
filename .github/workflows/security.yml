@@ -1,10 +1,10 @@
-name: security
+name: security_scan
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, solution]
   push:
-    branches: [main]
+    branches: [main, solution]
 
 jobs:
   test:
