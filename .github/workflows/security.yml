@@ -7,7 +7,7 @@ on:
     branches: [main, solution]
 
 jobs:
-  test:
+  security_check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
