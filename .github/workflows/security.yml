@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # - uses: actions/checkout@v4
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      # v6 is below 
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       # - uses: actions/setup-python@v5
       - uses: actions/setup-python@f677139bbe7f9c59c41f122b27a0a1506cdbf23e
         with:
