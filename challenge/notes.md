@@ -1,1 +1,1 @@
-adding personal notes here
+- Decide how to get the security.yml as a check when pushing to the solution and main branches
