@@ -2,7 +2,7 @@
 
 ## Real findings you would prioritize, with severity and rationale.
 
-> The following findings were found using Semgrep Community Edition, and then the second iteration of improving the CI pipeline used Semgrep’s Pro Engine and their AI Powered Detection tooling. The findings were then validated by both ChatGPT and Cursor / Gemini. 
+> Findings were identified using Semgrep Community Edition, and then the second iteration of CI pipeline improvements included Semgrep’s Pro Engine and their AI Powered Detection tooling. The findings were then validated by both ChatGPT and Cursor / Gemini. 
 
 ### P0 - fix as soon as possible (critical)
 
@@ -13,13 +13,13 @@
 
 #### IDOR within the records.py file
 
-- **Explanation**: Similar to the other IDOR finding, I validated this and Semgrep’s AI detection tool also found this as well. The ease of exploitability and the high impact are also the same as above, so this is also critical to fix. 
+- **Explanation**: Similar to the other IDOR finding, I validated this and Semgrep’s AI detection tool also found this as well. The ease of exploitability and the high impact are also the same as above, making it also critical to fix. 
 - **Context**: The read_record endpoint also authenticates users, but again doesn’t validate if the requested record is owned by that user. During my testing, I confirmed that the Alice user could easily view Bob’s records simply by guessing the name and record number that was similar to Alice’s record.
 
 #### SQL Injection within db.py
 
 - **Explanation**: This finding was validated by my own testing and then found by Semgrep during scanning. It is an easy to exploit finding and can lead to unintentional data exposure, resulting in another possible data breach. This would be critical to fix. 
-- **Context** : When the user sends over their search term, it’s concatenated into the SQL query directly with no parameterization, so the user can send over any SQL injection statements they want to pull all of the rows of the database for example.
+- **Context**: User input is directly concatenated into the SQL query, enabling injection and broad user record exposure.
 
 ### P1 - should be fixed during the next sprint (high)
 
@@ -67,13 +67,13 @@
 
 ## What your pipeline catches.
 
-The pipeline generally does a Semgrep scan and should fail on PRs that are critical / high (ERROR severity in Semgrep) along with the custom BAC/IDOR rule. Other findings will be reported in the CI output, but in production, findings would be surfaced as PR comments and won't block PRs. The custom IDOR/BAC Semgrep rule is set to ERROR, so matching findings fail CI and block PR merge. This broken access control issue was not originally detected by both Semgrep out of the box and the quick vulnerability scan from Cursor. Semgrep’s Pro Engine did catch the IDOR, but it took additional time to get to that point by upgrading to the Pro Engine - it was quicker to create a custom Semgrep rule to detect this.
+CI runs Semgrep on all PRs. ERROR (critical / high) findings including the custom IDOR/BAC rule fail CI and block PR merges. Lower-severity findings remain visible in CI output, but don't block PRs.
+The broken access control issue was not originally detected by Semgrep out of the box or the quick vulnerability scan from Cursor after my manual testing to exploit the vulnerability. Semgrep’s Pro Engine did catch the IDOR, but it took additional time to get to that point by upgrading to the Pro Engine - it was quicker to create a custom Semgrep rule to detect this.
 
 ## What your pipeline does not catch.
 
-The custom Semgrep IDOR rule was written (with AI) to attempt to generalize possible broken access control issues, specifically when endpoints fetch records with db.get_record(...) and return data without an inline ownership check. It may miss cases where authorization is enforced through helper functions. Because of these limits, this rule should be treated as a strong CI guardrail and paired with targeted testing and code review for full broken access control coverage.
-Initially, I ran the API locally and did a couple tests to see if I was able to view Bob’s records as the Alice user (which was allowed), proving there’s an access control issue. I also checked to see if I could continue using the token from Alice the following day, which was also allowed. Given this, I asked Cursor to validate that these vulnerabilities may exist and to list out any additional vulnerabilities it could find. It found 4 additional findings, 2 of which weren’t critical (overly descriptive error handling and a plaintext secret that is purposely in plaintext for this challenge). The final 2 additional findings could be critical, one being possible SQL injection risk for the search query and a potential SSRF risk related to the webhook. 
-These 2 possible findings aren’t necessarily fully caught (or exploited by me during initial testing) in the pipeline to truly understand if they would exist in production, so I would say they could be a possible miss. 
+The custom Semgrep IDOR rule was written (with AI) to attempt to generalize possible broken access control issues, specifically when endpoints fetch records with `db.get_record(...)` and return data without an inline ownership check. It may miss cases where authorization is enforced through helper functions (such as `is_user_authorized()`). Because of these limits, this rule should be treated as a strong CI guardrail and paired with targeted testing and code review for full broken access control coverage.
+I would also argue the SSRF and SQL injection findings are caught and I manually exploited the SQL injection finding, but they both need additional validation for exploitability/reachability and may be under-detected by Semgrep's static scanning.
 
 ## Where you would invest next if this was a production service.
 
