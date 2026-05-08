@@ -1,6 +1,6 @@
 > I would also link the Semgrep findings from the platform to the critical vulnerabilities in case the team wants to learn more. The platform also offers auto fixes from their AI assistant for findings that will auto-create fix PRs as well if engineers want to see other alternative fix paths and quickly fix these vulnerabilities. 
 
-Hi [engineering lead’s name here]. The Product Security team has found 2 critical vulnerabilities in the Records service that need to be prioritized ASAP, along with a few other vulnerabilities that can be addressed later on. We would love to chat in the future about improving consistency across this service via secure guardrails to avoid having engineers recreate the wheel for sensitive code changes. If engineers would rather use Claude/Cursor/preferred AI tool to find the best fix paths, feel free to use those with secure coding prompts (for example, here are some from SheHacksPurple to help). Below are the details and let us know if we can help you all get this resolved. Thank you in advance for prioritizing this to keep our customer data safe!
+Hi Engineering Lead! The Product Security team has found 3 critical vulnerabilities in the Records service that need to be prioritized ASAP, along with a few other vulnerabilities that can be addressed later on. We would love to chat in the future about improving consistency across this service via secure guardrails to avoid having engineers recreate the wheel for sensitive code changes. If engineers would rather use Claude/Cursor/preferred AI tool to find the best fix paths, feel free to use those with secure coding prompts (for example, here are some from SheHacksPurple to help). Below are the details and let us know if we can help you all get this resolved. Thank you in advance for prioritizing this to keep our customer data safe!
 
 ## P0 vulnerabilities - prioritize fixes ASAP
 ### Broken Access Control / IDOR within the search.py, records.py files 
@@ -25,7 +25,7 @@ Update the query and rows variables with the following:
 SSRF vulnerability in webhooks.py
 - Impact: The service could allow attackers to fetch their controlled URLs, which could expose internal services.  
 - Recommended actions: Implement allowlisting and block private or internal IP ranges.
-- Secure code suggestion: [would include link to Semgrep] 
+- Secure code suggestion: Please see Semgrep for further details. 
 
 Hardcoded JWT secret in auth.py
 - Impact: The hardcoded secret can be used by attackers to impersonate any user and bypass authentication. 
