@@ -3,14 +3,14 @@ name: security check
 on:
   # Scan and run tests in PRs
   pull_request:
-    branches: [main]
+    branches: [ "main" ]
 
   # Allow manual runs from the Actions tab
   workflow_dispatch: {}
 
   # Scan and run tests on mainline branch
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
   # Optional scheduled daily run
   schedule:
@@ -23,9 +23,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11"
 
@@ -46,35 +46,12 @@ jobs:
 
     steps:
       # Fetch project source with GitHub Actions Checkout.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      # Run Semgrep with both the auto config and your custom rules.
-      - run: semgrep scan --config auto --config .semgrep/rules/
+      # Run Semgrep with both the auto config and custom rules - full scan for reporting
+      - name: Semgrep full scan 
+        run: semgrep scan --config auto --config .semgrep/rules/
 
-# on:
-#   workflow_dispatch: {}
-#   pull_request: {}
-#   push:
-#     branches:
-#     - main
-#     - master
-#     paths:
-#     - .github/workflows/semgrep.yml
-#   schedule:
-#   # random HH:MM to avoid a load spike on GitHub Actions at 00:00
-#   - cron: 51 0 * * *
-# name: Semgrep
-# jobs:
-#   semgrep:
-#     name: semgrep/ci
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: read
-#     env:
-#       SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-#     container:
-#       image: semgrep/semgrep
-#     steps:
-#     - uses: actions/checkout@v4
-#     # - run: semgrep ci
-#     - run: semgrep scan --config auto --config .semgrep/rules/
+      # 2) Explicit CI gate: fail PR only on ERROR findings. - critical / high findings should block the PR
+      - name: Semgrep gate (block on ERROR severity)
+        run: semgrep scan --config auto --config .semgrep/rules/ --severity ERROR --error

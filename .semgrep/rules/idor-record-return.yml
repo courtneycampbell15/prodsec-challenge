@@ -1,20 +1,33 @@
 rules:
-  - id: idor-return-record-without-owner-check
+  - id: idor-record-access-without-owner-check
     languages: [python]
-    severity: WARNING
+    severity: ERROR
     message: >
-      Record is loaded with db.get_record(record_id) and returned without an
-      ownership check (e.g. record["owner_user_id"] vs current_user). Possible IDOR.
+      Possible IDOR/BAC: record data is fetched by identifier and returned without
+      an ownership check against current_user (or equivalent authorization guard).
     paths:
       include:
         - "app/routes/**/*.py"
     patterns:
       - pattern-inside: |
-          def $HANDLER(..., record_id: str, ...):
+          def $HANDLER(...):
               ...
-      - pattern: |
-          record = db.get_record(record_id)
-          ...
-          return record
+      - pattern-either:
+          - pattern: |
+              $REC = db.get_record($RID)
+              ...
+              return $REC
+          - pattern: |
+              $REC = db.get_record($RID)
+              ...
+              return {"record": $REC, ...}
+          - pattern: |
+              $REC = db.get_record($RID)
+              ...
+              return {"results": ...}
       - pattern-not-inside: |
-          record["owner_user_id"]
+          if current_user.role != "staff" and $REC["owner_user_id"] != current_user.id:
+              ...
+      - pattern-not-inside: |
+          if $REC["owner_user_id"] == current_user.id:
+              ...
